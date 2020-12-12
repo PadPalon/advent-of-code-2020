@@ -21,6 +21,14 @@ public class InputResourceReader implements AutoCloseable {
         return reader.lines();
     }
 
+    public String getFirstLine() {
+        return readDefaultInput().findFirst().orElseThrow();
+    }
+
+    public long getLineCount() {
+        return readDefaultInput().count();
+    }
+
     @Override
     public void close() throws Exception {
         if (reader != null) {

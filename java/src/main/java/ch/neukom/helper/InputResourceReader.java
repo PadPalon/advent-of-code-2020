@@ -25,6 +25,10 @@ public class InputResourceReader implements AutoCloseable {
         return readDefaultInput().findFirst().orElseThrow();
     }
 
+    public String getLastLine() {
+        return readDefaultInput().skip(getLineCount() - 1).findFirst().orElseThrow();
+    }
+
     public long getLineCount() {
         return readDefaultInput().count();
     }

@@ -1,5 +1,6 @@
 package ch.neukom.day14;
 
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,26 +9,34 @@ public class Command {
     private static final Pattern MEMORY_PATTERN = Pattern.compile("mem\\[([0-9]+)] = ([0-9]+)");
 
     private final Bitmask bitmask;
-    private final Integer address;
-    private final Integer value;
+    private final Long address;
+    private final Long value;
 
-    public Command(String mask) {
-        this.bitmask = new Bitmask(mask);
+    public Command(Bitmask bitmask) {
+        this.bitmask = bitmask;
         this.address = null;
         this.value = null;
     }
 
     public Command(String address, String value) {
         this.bitmask = null;
-        this.address = Integer.parseInt(address);
-        this.value = Integer.parseInt(value);
+        this.address = Long.parseLong(address);
+        this.value = Long.parseLong(value);
     }
 
-    public static Command parse(String line) {
+    public static Command parseWithValueMask(String line) {
+        return parse(line, ValueBitmask::new);
+    }
+
+    public static Command parseWithAddressMask(String line) {
+        return parse(line, AddressBitmask::buildAddressBitmask);
+    }
+
+    private static Command parse(String line, Function<String, Bitmask> bitmaskCreator) {
         if (line.startsWith("mask")) {
             Matcher matcher = MASK_PATTERN.matcher(line);
             if (matcher.find()) {
-                return new Command(matcher.group(1));
+                return new Command(bitmaskCreator.apply(matcher.group(1)));
             }
         } else {
             Matcher matcher = MEMORY_PATTERN.matcher(line);
@@ -46,11 +55,11 @@ public class Command {
         return bitmask;
     }
 
-    public Integer getAddress() {
+    public Long getAddress() {
         return address;
     }
 
-    public Integer getValue() {
+    public Long getValue() {
         return value;
     }
 }

@@ -7,6 +7,7 @@ import org.javatuples.Pair;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,18 +28,23 @@ public class Second {
         }
     }
 
+    private static String[] parseBusses(InputResourceReader reader) {
+        String busLine = reader.getLastLine();
+        return busLine.split(",");
+    }
+
+    /**
+     * @param busses the ids of the busses
+     * @return a list of pairs containing the id and the offset of the busses
+     */
     private static List<Pair<BigInteger, BigInteger>> buildConstraints(String[] busses) {
         return Streams.mapWithIndex(Arrays.stream(busses), Pair::with)
                 .filter(pair -> DIGIT_MATCHER.matchesAllOf(pair.getValue0()))
                 .map(pair -> pair.setAt0(Long.parseLong(pair.getValue0())))
                 .map(pair -> pair.setAt0(BigInteger.valueOf((pair.getValue0()))))
                 .map(pair -> pair.setAt1(BigInteger.valueOf(pair.getValue1())))
+                .sorted(Comparator.comparing(Pair::getValue0))
                 .collect(Collectors.toList());
-    }
-
-    private static String[] parseBusses(InputResourceReader reader) {
-        String busLine = reader.readDefaultInput().toArray(String[]::new)[1];
-        return busLine.split(",");
     }
 
     private static BigInteger calculateTimestamp(List<Pair<BigInteger, BigInteger>> constraints) {
@@ -57,6 +63,7 @@ public class Second {
         return timestamp.add(constraint.getValue1()).mod(constraint.getValue0()).compareTo(BigInteger.ZERO) == 0;
     }
 
+    // not necessary with this input, since these are all prime numbers, left here for completeness sake
     private static BigInteger lcm(BigInteger number1, BigInteger number2) {
         BigInteger gcd = number1.gcd(number2);
         BigInteger absProduct = number1.multiply(number2).abs();
